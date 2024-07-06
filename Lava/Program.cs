@@ -1,6 +1,4 @@
-﻿using SharpRakNet.Network;
-using SharpRakNet.Protocol.Packets;
-using SharpRakNet.Protocol.Raknet;
+﻿using Lava.Raknet;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -11,75 +9,56 @@ namespace Lava
     {
         static async Task Main(string[] args)
         {
-            const int PROTOCOL_VER = 685;
-            const byte PacketId = 0x1c;
-            const string Magic = "00ffff00fefefefefdfdfdfd12345678";
-            long _time = 0;
-            long _serverGuid = 0;
-            string _serverIdString = $"MCPE;§6§eLava Server;{PROTOCOL_VER};1.21.1;900;999;13253860892328930865;§l§eLava - A cutting-edge Minecraft Bedrock core designed for unparalleled performance, rock-solid stability, and advanced features.;Survival;1;19132;19133;";
-            
-            //using var udpServer = new UdpClient(19132);
+            RaknetListener raknetListener = new RaknetListener(new IPEndPoint(IPAddress.Parse("0.0.0.0"), 19132));
             Console.WriteLine("UDP-сервер запущен...");
-
-            RaknetListener listener = new RaknetListener(new IPEndPoint(IPAddress.Parse("0.0.0.0"), 19132));
-            listener.SessionConnected += OnSessionEstablished;
-            listener.BeginListener();
-
-            listener.Subscribe<UnconnectedPing>(OnRecievePing);
-
+            //raknetListener.
+            
             while (true) { }
         }
 
-        static void OnSessionEstablished(RaknetSession session)
-        {
-            Console.WriteLine("OnSessionEstablished");
-            session.SessionDisconnected += OnDisconnected;
-            //session.SessionReceiveRaw += OnReceive;
-            session.Sendq.Insert(Reliability.ReliableOrdered, new byte[] { 1, 2, 3 });
-        }
+        //    static void OnRecievePing(IPEndPoint address, UnconnectedPing packet)
+        //    {
+        //        string message = "--- " + address.Address + " ---";
 
-        static void OnRecievePing(IPEndPoint address, UnconnectedPing packet)
-        {
-            string message = "--- " + address.Address + " ---";
+        //        Console.WriteLine(message);
 
-            Console.WriteLine(message);
+        //        Console.WriteLine("Ping Time: " + packet.time);
+        //        Console.WriteLine("Ping Magic: " + packet.magic);
+        //        Console.WriteLine("Ping GUID: " + packet.guid);
 
-            Console.WriteLine("Ping Time: " + packet.time);
-            Console.WriteLine("Ping Magic: " + packet.magic);
-            Console.WriteLine("Ping GUID: " + packet.guid);
+        //        Console.WriteLine(string.Concat(Enumerable.Repeat("-", message.Length)));
+        //    }
 
-            Console.WriteLine(string.Concat(Enumerable.Repeat("-", message.Length)));
-        }
+        //    static void OnDisconnected(RaknetSession session)
+        //    {
+        //        Console.WriteLine(session.PeerEndPoint);
+        //    }
 
-        static void OnDisconnected(RaknetSession session)
-        {
-            Console.WriteLine(session.PeerEndPoint);
-        }
+        //    static void WriteString(BinaryWriter writer, string value)
+        //    {
+        //        var bytes = Encoding.UTF8.GetBytes(value);
+        //        var length = (short)bytes.Length;
 
-        static void WriteString(BinaryWriter writer, string value)
-        {
-            var bytes = Encoding.UTF8.GetBytes(value);
-            var length = (short)bytes.Length;
+        //        // Convert to big-endian
+        //        var lengthBytes = BitConverter.GetBytes(length);
+        //        if (BitConverter.IsLittleEndian)
+        //        {
+        //            Array.Reverse(lengthBytes);
+        //        }
 
-            // Convert to big-endian
-            var lengthBytes = BitConverter.GetBytes(length);
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(lengthBytes);
-            }
+        //        writer.Write(lengthBytes);
+        //        writer.Write(bytes);
+        //    }
 
-            writer.Write(lengthBytes);
-            writer.Write(bytes);
-        }
-
-        static byte[] StringToByteArray(string hex)
-        {
-            int NumberChars = hex.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-            for (int i = 0; i < NumberChars; i += 2)
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-            return bytes;
-        }
+        //    static byte[] StringToByteArray(string hex)
+        //    {
+        //        int NumberChars = hex.Length;
+        //        byte[] bytes = new byte[NumberChars / 2];
+        //        for (int i = 0; i < NumberChars; i += 2)
+        //            bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+        //        return bytes;
+        //    }
+        //}
     }
 }
 
