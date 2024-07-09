@@ -23,6 +23,9 @@ using Jose;
 using System.Collections;
 using Org.BouncyCastle.Crypto;
 using Newtonsoft.Json.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Org.BouncyCastle.Asn1.Pkcs;
+using SharpRakNet.Protocol.Raknet;
 //using Lava.Raknet.Utils;
 
 namespace Lava.Raknet
@@ -218,6 +221,10 @@ namespace Lava.Raknet
         public void HandleFrame(IPEndPoint address, FrameSetPacket frame)
         {
             PacketID packetID = (PacketID)frame.data[0];
+            if (packetID != PacketID.Game)
+            {
+                Console.WriteLine($"{packetID} <- C");
+            }
 
             switch (packetID)
             {
@@ -249,9 +256,9 @@ namespace Lava.Raknet
             }
         }
 
-        private void HandleGamePacketRaw(byte[] rawData)
+        private async void HandleGamePacketRaw(byte[] rawData)
         {
-            //Console.WriteLine($"(RAW) 0x{rawData[0]:X2} 0x{rawData[1]:X2} 0x{rawData[2]:X2} 0x{rawData[3]:X2} ({rawData.Length} bytes)");
+            Console.WriteLine($"(RAW) 0x{rawData[0]:X2} 0x{rawData[1]:X2} 0x{rawData[2]:X2} 0x{rawData[3]:X2} ({rawData.Length} bytes)");
 
             if (useEncryption)
             {
@@ -280,6 +287,9 @@ namespace Lava.Raknet
                     break;
                 case GamePacketID.LOGIN_PACKET:
                     HandleLogin(data);
+                    break;
+                case GamePacketID.CLIENT_CACHE_STATUS_PACKET:
+                    Console.WriteLine($"Cache status: {(new ClientCacheStatus(data).enabled ? "Enabled" : "Disabled")}");
                     break;
                 case GamePacketID.CLIENT_TO_SERVER_HANDSHAKE_PACKET:
                     Console.WriteLine("Encryption is not implemented!");
@@ -611,7 +621,7 @@ namespace Lava.Raknet
             }
         }
 
-        private void HandleRequestNetworkSettings(byte[] data)
+        private async void HandleRequestNetworkSettings(byte[] data)
         {
             //foreach (byte _byte in data)
             //{
@@ -721,6 +731,7 @@ namespace Lava.Raknet
 
         private void HandleConnectionRequest(IPEndPoint peer_addr, byte[] data)
         {
+            //Sendq.is_compression_ready = false;
             ConnectionRequest packet = Packet.ReadPacketConnectionRequest(data);
             ConnectionRequestAccepted packet_reply = new ConnectionRequestAccepted
             {
@@ -765,7 +776,21 @@ namespace Lava.Raknet
                     Thread.Sleep(100);
                     foreach (FrameSetPacket item in Sendq.Flush(CurTimestampMillis(), PeerEndPoint))
                     {
+
+                        if (item.is_game_packet)
+                        {
+                            GamePacketID packetID = (GamePacketID) item.data[0];
+                            Console.WriteLine($"{packetID} -> C");
+                        }
+                        
+                        if (!item.is_game_packet)
+                        {
+                            PacketID packetID = (PacketID)item.data[0];
+                            Console.WriteLine($"{packetID} -> C");
+                        }
+
                         byte[] sdata = item.Serialize();
+
                         socket.Send(PeerEndPoint, sdata);
                     }
                 }

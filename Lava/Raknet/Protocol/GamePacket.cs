@@ -8,6 +8,8 @@ namespace Lava.Raknet.Protocol
 {
     public abstract class GamePacket
     {
+        private readonly int ID;
+
         public byte[] Buffer { get; set; }
         public GamePacket(byte[] buffer)
         {
@@ -15,6 +17,26 @@ namespace Lava.Raknet.Protocol
         }
         public abstract byte[] Serialize();
         public abstract void Deserialize();
+        public void VerifyPacketID(RaknetReader stream)
+        {
+            Type childType = this.GetType();
+            object[] attributes = childType.GetCustomAttributes(typeof(RegisterPacketID), false);
+
+            if (attributes.Length == 0)
+            {
+                throw new Exception("No RegisterPacketID attribute found.");
+            }
+
+            RegisterPacketID registerPacketID = (RegisterPacketID)attributes[0];
+
+            GamePacketID packetIDFromStream = (GamePacketID)stream.ReadU8();
+            GamePacketID expectedPacketID = (GamePacketID)registerPacketID.ID;
+
+            if (packetIDFromStream != expectedPacketID)
+            {
+                throw new Exception("Packet ID mismatch.");
+            }
+        }
     }
 
     public enum GamePacketID

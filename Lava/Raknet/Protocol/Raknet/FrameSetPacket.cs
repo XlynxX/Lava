@@ -140,7 +140,20 @@ namespace Lava.Raknet
             if (is_game_packet)
             {
                 writer.WriteU8(0xfe);
-                if (is_compression_ready) writer.WriteU8((byte) 0x00);
+                //if (data[0] == 0x05)
+                //{
+                //    Console.WriteLine($"lmao! {data.Length}b");
+                //    //return data;
+                //    //return;
+                //}
+
+                //else
+                //{
+                //    if (is_compression_ready) writer.WriteU8((byte)0x00);
+                //    //writer.WriteU8((byte)data.Length);
+                //    writer.WriteVarInt(data.Length);
+                //}
+                if (is_compression_ready) writer.WriteU8((byte)0xFF);
                 //writer.WriteU8((byte)data.Length);
                 writer.WriteVarInt(data.Length);
             }

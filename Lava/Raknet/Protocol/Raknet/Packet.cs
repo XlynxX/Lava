@@ -5,6 +5,7 @@ using System;
 namespace Lava.Raknet
 {
     public abstract class Packet {
+
         public byte[] Buffer { get; set; }
 
         public Packet(byte[] buffer) {

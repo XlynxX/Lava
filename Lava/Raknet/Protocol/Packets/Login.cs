@@ -38,7 +38,8 @@ namespace Lava.Raknet.Packets
             if (Buffer == null) throw new System.Exception("Buffer is not present idk");
 
             RaknetReader stream = new RaknetReader(Buffer);
-            stream.ReadU8();
+            //stream.ReadU8();
+            VerifyPacketID(stream);
 
             protocol_version = stream.ReadI32(Endian.Big);
             var chain_size = stream.ReadVarInt();

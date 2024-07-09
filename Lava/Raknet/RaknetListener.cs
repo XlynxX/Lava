@@ -49,6 +49,7 @@ namespace Lava.Raknet
                 catch (Exception ex)
                 {
                     Console.WriteLine($"An error occurred: {ex.Message}");
+                    Console.WriteLine($"StackTrace: {ex.StackTrace}");
                 }
             }
         }
