@@ -178,6 +178,71 @@ namespace Lava.Raknet
             return magic.SequenceEqual(offlineMagic);
         }
 
+        public float ReadF32(Endian n)
+        {
+            if (bufStream.Length - bufStream.Position < 4)
+            {
+                throw new RaknetError("ReadPacketBufferError");
+            }
+
+            byte[] bytes = reader.ReadBytes(4);
+            if (n == Endian.Big && BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+            return BitConverter.ToSingle(bytes, 0);
+        }
+
+        public bool ReadBool()
+        {
+            if (bufStream.Length - bufStream.Position < 1)
+            {
+                throw new RaknetError("ReadPacketBufferError");
+            }
+            return reader.ReadByte() != 0;
+        }
+        public short ReadI16(Endian n)
+        {
+            if (bufStream.Length - bufStream.Position < 2)
+            {
+                throw new RaknetError("ReadPacketBufferError");
+            }
+
+            if (n == Endian.Big)
+            {
+                byte[] bytes = reader.ReadBytes(2);
+                Array.Reverse(bytes);
+                return BitConverter.ToInt16(bytes, 0);
+            }
+            else
+            {
+                return reader.ReadInt16();
+            }
+        }
+        public int ReadVarInt()
+        {
+            int result = 0;
+            int bytesRead = 0;
+            byte read;
+
+            do
+            {
+                read = reader.ReadByte();
+                int value = (read & 0x7F);
+                result |= (value << (7 * bytesRead));
+
+                bytesRead++;
+
+                if (bytesRead > 5)
+                {
+                    throw new InvalidOperationException("VarInt is too long.");
+                }
+            }
+            while ((read & 0x80) != 0);
+
+            return result;
+        }
+
         public IPEndPoint ReadAddress()
         {
             byte ipVersion = ReadU8();

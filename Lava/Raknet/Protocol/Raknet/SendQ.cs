@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Lava.Raknet.Protocol;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -18,6 +19,7 @@ namespace Lava.Raknet
         private long rto;
         private long srtt;
 
+        public bool is_compression_ready = false;
         public const long DEFAULT_TIMEOUT_MILLS = 50;
         private const long RTO_UBOUND = 12000;
         private const long RTO_LBOUND = 50;
@@ -48,7 +50,7 @@ namespace Lava.Raknet
                     {
                         throw new RaknetError("PacketSizeExceedMTU");
                     }
-                    FrameSetPacket frame = new FrameSetPacket(reliability, buffer);
+                    FrameSetPacket frame = new FrameSetPacket(reliability, buffer, is_compression_ready);
                     lock (packetsLock)
                         packets.Add(frame);
                     break;
@@ -57,7 +59,7 @@ namespace Lava.Raknet
                     {
                         throw new RaknetError("PacketSizeExceedMTU");
                     }
-                    FrameSetPacket sequencedFrame = new FrameSetPacket(reliability, buffer);
+                    FrameSetPacket sequencedFrame = new FrameSetPacket(reliability, buffer, is_compression_ready);
                     sequencedFrame.ordered_frame_index = ordered_frame_index;
                     sequencedFrame.sequenced_frame_index = sequenced_frame_index;
                     lock (packetsLock)
@@ -69,7 +71,7 @@ namespace Lava.Raknet
                     {
                         throw new RaknetError("PacketSizeExceedMTU");
                     }
-                    FrameSetPacket reliableFrame = new FrameSetPacket(reliability, buffer);
+                    FrameSetPacket reliableFrame = new FrameSetPacket(reliability, buffer, is_compression_ready);
                     reliableFrame.reliable_frame_index = reliable_frame_index;
                     lock (packetsLock)
                         packets.Add(reliableFrame);
@@ -78,7 +80,7 @@ namespace Lava.Raknet
                 case Reliability.ReliableOrdered:
                     if (buffer.Length < (mtu - 60))
                     {
-                        FrameSetPacket orderedFrame = new FrameSetPacket(reliability, buffer);
+                        FrameSetPacket orderedFrame = new FrameSetPacket(reliability, buffer, is_compression_ready);
                         orderedFrame.reliable_frame_index = reliable_frame_index;
                         orderedFrame.ordered_frame_index = ordered_frame_index;
                         lock (packetsLock)
@@ -99,7 +101,7 @@ namespace Lava.Raknet
                         {
                             int begin = (max * i);
                             int end = (i == compoundSize - 1) ? buffer.Length : (max * (i + 1));
-                            FrameSetPacket compoundFrame = new FrameSetPacket(reliability, new List<byte>(buffer).GetRange(begin, end - begin).ToArray());
+                            FrameSetPacket compoundFrame = new FrameSetPacket(reliability, new List<byte>(buffer).GetRange(begin, end - begin).ToArray(), is_compression_ready);
                             compoundFrame.flags |= 16;
                             compoundFrame.compound_size = (uint)compoundSize;
                             compoundFrame.compound_id = compound_id;
@@ -119,7 +121,101 @@ namespace Lava.Raknet
                     {
                         throw new RaknetError("PacketSizeExceedMTU");
                     }
-                    FrameSetPacket reliableSequencedFrame = new FrameSetPacket(reliability, buffer);
+                    FrameSetPacket reliableSequencedFrame = new FrameSetPacket(reliability, buffer, is_compression_ready);
+                    reliableSequencedFrame.reliable_frame_index = reliable_frame_index;
+                    reliableSequencedFrame.sequenced_frame_index = sequenced_frame_index;
+                    reliableSequencedFrame.ordered_frame_index = ordered_frame_index;
+                    lock (packetsLock)
+                        packets.Add(reliableSequencedFrame);
+                    reliable_frame_index++;
+                    sequenced_frame_index++;
+                    break;
+            }
+        }
+
+        public void Insert(Reliability reliability, GamePacket packet)
+        {
+            byte[] buffer = packet.Serialize();
+
+            switch (reliability)
+            {
+                case Reliability.Unreliable:
+                    if (buffer.Length > (mtu - 60))
+                    {
+                        throw new RaknetError("PacketSizeExceedMTU");
+                    }
+                    FrameSetPacket frame = new FrameSetPacket(reliability, buffer, is_compression_ready, true);
+                    lock (packetsLock)
+                        packets.Add(frame);
+                    break;
+                case Reliability.UnreliableSequenced:
+                    if (buffer.Length > (mtu - 60))
+                    {
+                        throw new RaknetError("PacketSizeExceedMTU");
+                    }
+                    FrameSetPacket sequencedFrame = new FrameSetPacket(reliability, buffer, is_compression_ready, true);
+                    sequencedFrame.ordered_frame_index = ordered_frame_index;
+                    sequencedFrame.sequenced_frame_index = sequenced_frame_index;
+                    lock (packetsLock)
+                        packets.Add(sequencedFrame);
+                    sequenced_frame_index++;
+                    break;
+                case Reliability.Reliable:
+                    if (buffer.Length > (mtu - 60))
+                    {
+                        throw new RaknetError("PacketSizeExceedMTU");
+                    }
+                    FrameSetPacket reliableFrame = new FrameSetPacket(reliability, buffer, is_compression_ready, true);
+                    reliableFrame.reliable_frame_index = reliable_frame_index;
+                    lock (packetsLock)
+                        packets.Add(reliableFrame);
+                    reliable_frame_index++;
+                    break;
+                case Reliability.ReliableOrdered:
+                    if (buffer.Length < (mtu - 60))
+                    {
+                        FrameSetPacket orderedFrame = new FrameSetPacket(reliability, buffer, is_compression_ready, true);
+                        orderedFrame.reliable_frame_index = reliable_frame_index;
+                        orderedFrame.ordered_frame_index = ordered_frame_index;
+                        lock (packetsLock)
+                            packets.Add(orderedFrame);
+                        reliable_frame_index++;
+                        ordered_frame_index++;
+                    }
+                    else
+                    {
+                        int max = (mtu - 60);
+                        int compoundSize = buffer.Length / max;
+                        if (buffer.Length % max != 0)
+                        {
+                            compoundSize++;
+                        }
+
+                        for (int i = 0; i < compoundSize; i++)
+                        {
+                            int begin = (max * i);
+                            int end = (i == compoundSize - 1) ? buffer.Length : (max * (i + 1));
+                            FrameSetPacket compoundFrame = new FrameSetPacket(reliability, new List<byte>(buffer).GetRange(begin, end - begin).ToArray(), is_compression_ready, true);
+                            compoundFrame.flags |= 16;
+                            compoundFrame.compound_size = (uint)compoundSize;
+                            compoundFrame.compound_id = compound_id;
+                            compoundFrame.fragment_index = (uint)i;
+                            compoundFrame.reliable_frame_index = reliable_frame_index;
+                            compoundFrame.ordered_frame_index = ordered_frame_index;
+                            lock (packetsLock)
+                                packets.Add(compoundFrame);
+                            reliable_frame_index++;
+                        }
+                        compound_id++;
+                        ordered_frame_index++;
+                    }
+                    break;
+                case Reliability.ReliableSequenced:
+                    if (buffer.Length > (mtu - 60))
+                    {
+                        throw new RaknetError("PacketSizeExceedMTU");
+                    }
+                    FrameSetPacket reliableSequencedFrame = new FrameSetPacket(reliability, buffer, is_compression_ready, true);
                     reliableSequencedFrame.reliable_frame_index = reliable_frame_index;
                     reliableSequencedFrame.sequenced_frame_index = sequenced_frame_index;
                     reliableSequencedFrame.ordered_frame_index = ordered_frame_index;

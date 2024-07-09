@@ -10,9 +10,8 @@ namespace Lava
         static async Task Main(string[] args)
         {
             RaknetListener raknetListener = new RaknetListener(new IPEndPoint(IPAddress.Parse("0.0.0.0"), 19132));
-            Console.WriteLine("UDP-сервер запущен...");
-            //raknetListener.
-            
+            Console.WriteLine("Lava started...");
+
             while (true) { }
         }
 

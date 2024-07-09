@@ -6,6 +6,8 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Lava.Raknet.Protocol;
+using System.Buffers.Binary;
 
 namespace Lava.Raknet
 {
@@ -20,6 +22,10 @@ namespace Lava.Raknet
 
 
         public void WriteU8(PacketID id)
+        {
+            WriteU8((byte)id);
+        }
+        public void WriteU8(GamePacketID id)
         {
             WriteU8((byte)id);
         }
@@ -41,6 +47,13 @@ namespace Lava.Raknet
                 bytes = BitConverter.GetBytes(v);
             }
             buf.AddRange(bytes);
+        }
+
+        public void WriteShort(short value)
+        {
+            byte[] buffer = new byte[sizeof(short)];
+            BinaryPrimitives.WriteInt16LittleEndian(buffer, value);
+            Write(buffer);
         }
 
         public void WriteU16(ushort v, Endian n)
@@ -151,7 +164,36 @@ namespace Lava.Raknet
         {
             byte[] raw = Encoding.UTF8.GetBytes(body);
             WriteU16((ushort)raw.Length, Endian.Big);
+            //WriteVarInt(raw.Length);
             buf.AddRange(raw);
+        }
+
+        public void WriteF32(float v, Endian n)
+        {
+            byte[] bytes = BitConverter.GetBytes(v);
+            if (n == Endian.Big && BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+            buf.AddRange(bytes);
+        }
+        public float ReadF32(byte[] data, int startIndex, Endian n)
+        {
+            byte[] bytes = new byte[4];
+            Array.Copy(data, startIndex, bytes, 0, 4);
+            if (n == Endian.Big && BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+            return BitConverter.ToSingle(bytes, 0);
+        }
+        public void WriteBool(bool v)
+        {
+            buf.Add(v ? (byte)1 : (byte)0);
+        }
+        public bool ReadBool(byte[] data, int startIndex)
+        {
+            return data[startIndex] != 0;
         }
 
         public void WriteAddress(IPEndPoint address)
@@ -175,6 +217,34 @@ namespace Lava.Raknet
                 Write(ipBytes);
                 WriteI32(0, Endian.Big);
             }
+        }
+        
+        public void WriteVarInt(int value)
+        {
+            do
+            {
+                byte temp = (byte)(value & 0x7F);
+                value >>= 7;
+
+                if (value != 0)
+                {
+                    temp |= 0x80;
+                }
+
+                WriteU8(temp);
+            }
+            while (value != 0);
+        }
+
+        public void WriteUVarInt(uint value)
+        {
+            while ((value & -128) != 0)
+            {
+                WriteU8((byte)((value & 0x7F) | 0x80));
+                value >>= 7;
+            }
+
+            WriteU8((byte)value);
         }
 
         public void WriteSequences(List<AckRange> sequences)

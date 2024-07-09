@@ -99,7 +99,7 @@ namespace SharpRakNet.Network
             {
                 case PacketID.Nack:
                     {
-                        //Console.WriteLine("Nack");
+                        Console.WriteLine("Nack");
                         lock (Sendq)
                         {
                             Nack nack = Packet.ReadPacketNack(data);
@@ -123,7 +123,7 @@ namespace SharpRakNet.Network
                     }
                 case PacketID.Ack:
                     {
-                        //Console.WriteLine("Ack");
+                        Console.WriteLine("Ack");
                         lock (Sendq)
                         {
                             Ack ack = Packet.ReadPacketAck(data);

@@ -15,6 +15,8 @@ namespace Lava.Raknet
         public uint compound_size;
         public ushort compound_id;
         public uint fragment_index;
+        public bool is_game_packet;
+        public bool is_compression_ready;
         public byte[] data = new byte[] {};
         
         public FrameSetPacket()
@@ -35,7 +37,7 @@ namespace Lava.Raknet
         static readonly byte NEEDS_B_AND_AS_FLAG = 0x4;
         static readonly byte CONTINUOUS_SEND_FLAG = 0x8;
 
-        public FrameSetPacket(Reliability r, byte[] data)
+        public FrameSetPacket(Reliability r, byte[] data, bool is_compression_ready = false, bool is_game_packet = false)
         {
             byte flag = (byte)((byte)r << 5);
 
@@ -51,6 +53,10 @@ namespace Lava.Raknet
             compound_id = 0;
             fragment_index = 0;
             this.data = data;
+            this.is_game_packet = is_game_packet;
+            this.is_compression_ready = is_compression_ready;
+
+            if (is_game_packet) { length_in_bytes += 2; }
         }
 
         public static FrameSetPacket Deserialize(byte[] buf)
@@ -129,6 +135,14 @@ namespace Lava.Raknet
                 writer.WriteU32(compound_size, Endian.Big);
                 writer.WriteU16(compound_id, Endian.Big);
                 writer.WriteU32(fragment_index, Endian.Big);
+            }
+
+            if (is_game_packet)
+            {
+                writer.WriteU8(0xfe);
+                if (is_compression_ready) writer.WriteU8((byte) 0x00);
+                //writer.WriteU8((byte)data.Length);
+                writer.WriteVarInt(data.Length);
             }
             writer.Write(data);
 

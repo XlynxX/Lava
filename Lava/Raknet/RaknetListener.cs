@@ -30,8 +30,6 @@ namespace Lava.Raknet
             socket = new UdpClient(ip);
             _closed = false;
             StartReceiving();
-
-            //Listeners.Add(<Un>)
         }
         private async void StartReceiving()
         {
@@ -57,7 +55,6 @@ namespace Lava.Raknet
 
         private void OnPacketReceived(IPEndPoint address, byte[] data)
         {
-            //Console.WriteLine($"RECEIVE PacketID 0x{data[0]:X2} ({(PacketID)data[0]})");
             switch ((PacketID)data[0])
             {
                 case PacketID.UnconnectedPing1:
@@ -90,31 +87,26 @@ namespace Lava.Raknet
             }
         }
 
-        private void OnGamePacketReceived(IPEndPoint address, byte[] data)
-        {
-
-        }
-
         private void HandleIncomingPacket(IPEndPoint address, byte[] buffer)
         {
-            //byte packetID = buffer[0];
+            byte packetID = buffer[0];
 
-            //bool exists = Listeners.TryGetValue(packetID, out List<(Type, Delegate)> value);
-            //if (!exists) return;
+            bool exists = Listeners.TryGetValue(packetID, out List<(Type, Delegate)> value);
+            if (!exists) return;
 
-            //foreach ((Type, Delegate) registration in value)
-            //{
-            //    Delegate callback = registration.Item2;
-            //    Type packetType = registration.Item1;
+            foreach ((Type, Delegate) registration in value)
+            {
+                Delegate callback = registration.Item2;
+                Type packetType = registration.Item1;
 
-            //    MethodInfo method = packetType.GetMethod("Deserialize");
-            //    if (method == null) return;
+                MethodInfo method = packetType.GetMethod("Deserialize");
+                if (method == null) return;
 
-            //    object packet = Activator.CreateInstance(packetType, new object[] { buffer });
-            //    method.Invoke(packet, new object[] { });
+                object packet = Activator.CreateInstance(packetType, new object[] { buffer });
+                method.Invoke(packet, new object[] { });
 
-            //    callback.DynamicInvoke(address, packet);
-            //}
+                callback.DynamicInvoke(address, packet);
+            }
         }
 
         private void HandleUnconnectedPing1(IPEndPoint peer_addr, byte[] data)

@@ -34,7 +34,7 @@ namespace Lava.Raknet.Packets
 
             RaknetReader stream = new RaknetReader(Buffer);
             stream.ReadU8();
-            stream.ReadU8();
+            stream.ReadU8(); // idk
 
             protocol_version = stream.ReadI32(Endian.Big);
         }
