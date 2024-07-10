@@ -4,10 +4,10 @@ using Lava.Raknet.Protocol;
 
 namespace Lava.Raknet.Protocol.Types
 {
-	public sealed class CompressionAlgorithm
-	{
-		public const int ZLIB = 0;
-		public const int SNAPPY = 1;
-		public const int NONE = 255;
-	}
+    public sealed class CompressionAlgorithm
+    {
+        public const int ZLIB = 0;
+        public const int SNAPPY = 1;
+        public const int NONE = 255;
+    }
 }

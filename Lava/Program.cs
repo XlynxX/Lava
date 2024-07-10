@@ -10,18 +10,25 @@ namespace Lava
     {
         static async Task Main(string[] args)
         {
-            RaknetListener raknetListener = new RaknetListener(new IPEndPoint(IPAddress.Parse("0.0.0.0"), 19132));
+            //RaknetListener raknetListener = new RaknetListener(new IPEndPoint(IPAddress.Parse("0.0.0.0"), 19132));
             Console.WriteLine("Lava started...");
 
-            //StartGamePacket startGame = new StartGamePacket();
-            //var bytes = startGame.Serialize();
+            StartGamePacket startGame = new StartGamePacket();
+            var bytes = startGame.Serialize();
 
-            //StartGamePacket start = new StartGamePacket(bytes);
-            //start.Deserialize();
+            StartGamePacket start = new StartGamePacket(bytes);
+            start.Deserialize();
 
             //Console.WriteLine(start.playerPosition.X);
             //Console.WriteLine(start.playerPosition.Y);
             //Console.WriteLine(start.playerPosition.Z);
+
+            //Console.WriteLine(start.pitch); Console.WriteLine(start.yaw);
+            //Console.WriteLine(start.levelSettings.RainLevel);
+            //Console.WriteLine(start.levelSettings.LightningLevel);
+            //Console.WriteLine(start.levelSettings.VanillaVersion);
+            //Console.WriteLine(start.levelSettings.HasEduFeaturesEnabled);
+            Console.WriteLine(start.levelId);
 
             while (true) { }
         }

@@ -405,22 +405,22 @@ namespace Lava.Raknet.Protocol
         {
             return writeBuff.ToArray();
         }
-        public int readActorUniqueId()
+        public int ReadActorUniqueId()
         {
             return (int) ReadSignedVarLong();
         }
 
-        public void writeActorUniqueId(int eid)
+        public void WriteActorUniqueId(int eid)
         {
             WriteSignedVarLong(eid);
         }
 
-        public int readActorRuntimeId()
+        public int ReadActorRuntimeId()
         {
             return (int) ReadUnsignedVarLong(); // $this->getUnsignedVarLong();
         }
 
-        public void writeActorRuntimeId(int eid)
+        public void WriteActorRuntimeId(int eid)
         {
             WriteUnsignedVarLong(eid); //$this->putUnsignedVarLong($eid);
         }

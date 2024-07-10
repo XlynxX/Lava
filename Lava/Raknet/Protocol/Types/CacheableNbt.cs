@@ -4,8 +4,8 @@ using Lava.Raknet.Protocol;
 
 namespace Lava.Raknet.Protocol.Types
 {
-	public sealed class CacheableNbt
-	{
-		private string encodedNbt;
-	}
+    public sealed class CacheableNbt
+    {
+        private string encodedNbt;
+    }
 }

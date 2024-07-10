@@ -4,7 +4,7 @@ using Lava.Raknet.Protocol;
 
 namespace Lava.Raknet.Protocol.Types
 {
-	public sealed class DimensionData
-	{
-	}
+    public sealed class DimensionData
+    {
+    }
 }

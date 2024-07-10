@@ -4,9 +4,9 @@ using Lava.Raknet.Protocol;
 
 namespace Lava.Raknet.Protocol.Types
 {
-	public class ScoreboardIdentityPacketEntry
-	{
-		public int scoreboardId;
-		public int actorUniqueId = null;
-	}
+    public class ScoreboardIdentityPacketEntry
+    {
+        public int scoreboardId;
+        public int actorUniqueId = 0;
+    }
 }

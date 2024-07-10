@@ -1,6 +1,7 @@
 ﻿// THIS CODE WAS AUTO GENERATED. DO NOT CHANGE IT! 
 
 using Lava.Raknet.Protocol;
+using Lava.Raknet.Protocol.Types;
 
 namespace Lava.Raknet.Packets
 {
@@ -13,12 +14,13 @@ namespace Lava.Raknet.Packets
         public Vector3 playerPosition;
         public float pitch;
         public float yaw;
+
         //public CacheableNbt playerActorProperties;
-        //public LevelSettings levelSettings;
-        //public string levelId = "";
-        //public string worldName;
-        //public string premiumWorldTemplateId = "";
-        //public bool isTrial = false;
+        public LevelSettings levelSettings;
+        public string levelId = "";
+        public string worldName;
+        public string premiumWorldTemplateId = "";
+        public bool isTrial = false;
         //public PlayerMovementSettings playerMovementSettings;
         //public int currentTick = 0;
         //public int enchantmentSeed = 0;
@@ -52,32 +54,34 @@ namespace Lava.Raknet.Packets
             if (Buffer == null) throw new System.Exception("Buffer is not present idk");
             MinecraftStream ms = new MinecraftStream(Buffer);
             ms.ReadByte();
-            this.actorUniqueId = ms.readActorUniqueId();
-            this.actorRuntimeId = ms.readActorRuntimeId();
+            this.actorUniqueId = ms.ReadActorUniqueId();
+            this.actorRuntimeId = ms.ReadActorRuntimeId();
             this.playerGamemode = ms.ReadVarInt();
             
             this.playerPosition = ms.ReadVector3();
 
             this.pitch = ms.ReadFloat();
             this.yaw = ms.ReadFloat();
-            //this.levelSettings = ms.read();
-            //this.levelId = ms.getString();
-            //this.worldName = ms.getString();
-            //this.premiumWorldTemplateId = ms.getString();
-            //this.isTrial = ms.getBool();
+
+            this.levelSettings = LevelSettings.Read(ms);
+            
+            this.levelId = ms.ReadString();
+            this.worldName = ms.ReadString();
+            this.premiumWorldTemplateId = ms.ReadString();
+            this.isTrial = ms.ReadBoolean();
             //this.playerMovementSettings = ms.read();
             //this.currentTick = ms.getLLong();
-            //this.enchantmentSeed = ms.getVarInt();
+            //this.enchantmentSeed = ms.ReadVarInt();
             //this.blockPalette = ms.undefined();
             //this.itemTable = ms.undefined();
-            //this.multiplayerCorrelationId = ms.getString();
-            //this.enableNewInventorySystem = ms.getBool();
-            //this.serverSoftwareVersion = ms.getString();
+            //this.multiplayerCorrelationId = ms.ReadString();
+            //this.enableNewInventorySystem = ms.ReadBoolean();
+            //this.serverSoftwareVersion = ms.ReadString();
             //this.playerActorProperties = ms.undefined();
             //this.blockPaletteChecksum = ms.getLLong();
             //this.worldTemplateId = ms.getUUID();
-            //this.enableClientSideChunkGeneration = ms.getBool();
-            //this.blockNetworkIdsAreHashes = ms.getBool();
+            //this.enableClientSideChunkGeneration = ms.ReadBoolean();
+            //this.blockNetworkIdsAreHashes = ms.ReadBoolean();
             //this.networkPermissions = ms.decode();
         }
     }

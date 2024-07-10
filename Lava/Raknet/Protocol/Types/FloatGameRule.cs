@@ -4,9 +4,9 @@ using Lava.Raknet.Protocol;
 
 namespace Lava.Raknet.Protocol.Types
 {
-	public sealed class FloatGameRule
-	{
-		public const int ID = undefined;
-		private float value;
-	}
+    public sealed class FloatGameRule
+    {
+        public const int ID = GameRuleType.FLOAT;
+        private float value;
+    }
 }

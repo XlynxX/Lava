@@ -4,7 +4,7 @@ using Lava.Raknet.Protocol;
 
 namespace Lava.Raknet.Protocol.Types
 {
-	public class GameRule
-	{
-	}
+    public class GameRule
+    {
+    }
 }

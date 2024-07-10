@@ -2,7 +2,7 @@
 {
     public class LevelSettings
     {
-        public long Seed { get; set; }
+        public ulong Seed { get; set; }
         public SpawnSettings SpawnSettings { get; set; }
         public int Generator { get; set; } = GeneratorType.OVERWORLD;
         public int WorldGamemode { get; set; }
@@ -54,67 +54,76 @@
         public string WorldIdentifier { get; set; } = "";
         public string ScenarioIdentifier { get; set; } = "";
 
-        public static LevelSettings Read(byte[] bytes)
+        public static LevelSettings Read(MinecraftStream ms)
         {
             var result = new LevelSettings();
-            result.InternalRead(bytes);
+            result.InternalRead(ms);
             return result;
         }
 
-        private void InternalRead(byte[] bytes)
+        private void InternalRead(MinecraftStream ms)
         {
-            MinecraftStream ms = new MinecraftStream(bytes);
-            //Seed = ms.readLLong();
+            Seed = ms.ReadUnsignedLong(); // .ReadUnsignedLong(); //.readLLong(); // unsigned 64bit
             //SpawnSettings = SpawnSettings.Read(ms);
-            //Generator = ms.readVarInt();
-            //WorldGamemode = ms.readVarInt();
-            //Hardcore = ms.readBool();
-            //Difficulty = ms.readVarInt();
-            //SpawnPosition = ms.readBlockPosition();
-            //HasAchievementsDisabled = ms.readBool();
-            //EditorWorldType = ms.readVarInt();
-            //CreatedInEditorMode = ms.readBool();
-            //ExportedFromEditorMode = ms.readBool();
-            //Time = ms.readVarInt();
-            //EduEditionOffer = ms.readVarInt();
-            //HasEduFeaturesEnabled = ms.readBool();
-            //EduProductUUID = ms.readString();
-            //RainLevel = ms.readLFloat();
-            //LightningLevel = ms.readLFloat();
-            //HasConfirmedPlatformLockedContent = ms.readBool();
-            //IsMultiplayerGame = ms.readBool();
-            //HasLANBroadcast = ms.readBool();
-            //XboxLiveBroadcastMode = ms.readVarInt();
-            //PlatformBroadcastMode = ms.readVarInt();
-            //CommandsEnabled = ms.readBool();
-            //IsTexturePacksRequired = ms.readBool();
+            // SPAWN SETTINGS
+
+            ms.ReadShort();
+            ms.ReadString();
+            ms.ReadVarInt();
+            //$biomeType = $in->getLShort();
+		    //$biomeName = $in->getString();
+		    //$dimension = $in->getVarInt();
+
+            // SPAWN SETTINGS
+            Generator = ms.ReadVarInt();
+            WorldGamemode = ms.ReadVarInt();
+            Hardcore = ms.ReadBoolean();
+            Difficulty = ms.ReadVarInt();
+            ms.ReadBlockCoordinates(); //SpawnPosition = ms.ReadBlockCoordinates();
+            HasAchievementsDisabled = ms.ReadBoolean();
+            EditorWorldType = ms.ReadVarInt();
+            CreatedInEditorMode = ms.ReadBoolean();
+            ExportedFromEditorMode = ms.ReadBoolean();
+            Time = ms.ReadVarInt();
+            EduEditionOffer = ms.ReadVarInt();
+            HasEduFeaturesEnabled = ms.ReadBoolean();
+            EduProductUUID = ms.ReadString();
+            RainLevel = ms.ReadFloat();
+            LightningLevel = ms.ReadFloat();
+            HasConfirmedPlatformLockedContent = ms.ReadBoolean();
+            IsMultiplayerGame = ms.ReadBoolean();
+            HasLANBroadcast = ms.ReadBoolean();
+            XboxLiveBroadcastMode = ms.ReadVarInt();
+            PlatformBroadcastMode = ms.ReadVarInt();
+            CommandsEnabled = ms.ReadBoolean();
+            IsTexturePacksRequired = ms.ReadBoolean();
             //GameRules = ms.readGameRules();
             //Experiments = Experiments.Read(ms);
-            //HasBonusChestEnabled = ms.readBool();
-            //HasStartWithMapEnabled = ms.readBool();
-            //DefaultPlayerPermission = ms.readVarInt();
-            //ServerChunkTickRadius = ms.readLInt();
-            //HasLockedBehaviorPack = ms.readBool();
-            //HasLockedResourcePack = ms.readBool();
-            //IsFromLockedWorldTemplate = ms.readBool();
-            //UseMsaGamertagsOnly = ms.readBool();
-            //IsFromWorldTemplate = ms.readBool();
-            //IsWorldTemplateOptionLocked = ms.readBool();
-            //OnlySpawnV1Villagers = ms.readBool();
-            //DisablePersona = ms.readBool();
-            //DisableCustomSkins = ms.readBool();
-            //MuteEmoteAnnouncements = ms.readBool();
-            //VanillaVersion = ms.readString();
-            //LimitedWorldWidth = ms.readLInt();
-            //LimitedWorldLength = ms.readLInt();
-            //IsNewNether = ms.readBool();
+            HasBonusChestEnabled = ms.ReadBoolean();
+            HasStartWithMapEnabled = ms.ReadBoolean();
+            DefaultPlayerPermission = ms.ReadVarInt();
+            ServerChunkTickRadius = ms.ReadInt();
+            HasLockedBehaviorPack = ms.ReadBoolean();
+            HasLockedResourcePack = ms.ReadBoolean();
+            IsFromLockedWorldTemplate = ms.ReadBoolean();
+            UseMsaGamertagsOnly = ms.ReadBoolean();
+            IsFromWorldTemplate = ms.ReadBoolean();
+            IsWorldTemplateOptionLocked = ms.ReadBoolean();
+            OnlySpawnV1Villagers = ms.ReadBoolean();
+            DisablePersona = ms.ReadBoolean();
+            DisableCustomSkins = ms.ReadBoolean();
+            MuteEmoteAnnouncements = ms.ReadBoolean();
+            VanillaVersion = ms.ReadString();
+            LimitedWorldWidth = ms.ReadInt();
+            LimitedWorldLength = ms.ReadInt();
+            IsNewNether = ms.ReadBoolean();
             //EduSharedUriResource = EducationUriResource.Read(ms);
-            //ExperimentalGameplayOverride = ms.ReadOptional(ms.readBool);
-            //ChatRestrictionLevel = ms.readByte();
-            //DisablePlayerInteractions = ms.readBool();
-            //ServerIdentifier = ms.readString();
-            //WorldIdentifier = ms.readString();
-            //ScenarioIdentifier = ms.readString();
+            //ExperimentalGameplayOverride = ms.ReadOptional(ms.ReadBoolean);
+            ChatRestrictionLevel = ms.ReadByte();
+            DisablePlayerInteractions = ms.ReadBoolean();
+            ServerIdentifier = ms.ReadString();
+            WorldIdentifier = ms.ReadString();
+            ScenarioIdentifier = ms.ReadString();
         }
 
         public void Write()

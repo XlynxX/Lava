@@ -4,10 +4,10 @@ using Lava.Raknet.Protocol;
 
 namespace Lava.Raknet.Protocol.Types
 {
-	public sealed class DimensionIds
-	{
-		public const int OVERWORLD = 0;
-		public const int NETHER = 1;
-		public const int THE_END = 2;
-	}
+    public sealed class DimensionIds
+    {
+        public const int OVERWORLD = 0;
+        public const int NETHER = 1;
+        public const int THE_END = 2;
+    }
 }

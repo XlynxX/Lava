@@ -13,8 +13,4 @@
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SharpRakNet\SharpRakNet.csproj" />
-  </ItemGroup>
-
 </Project>
