@@ -297,25 +297,35 @@ namespace Lava.Raknet
                 case GamePacketID.RESOURCE_PACK_CLIENT_RESPONSE_PACKET:
                     HandleResourcePacksClientResponse();
                     break;
+                case GamePacketID.PACKET_VIOLATION_WARNING_PACKET:
+                    PacketViolationWarning warning = new PacketViolationWarning(data);
+                    Console.WriteLine("Client sent warning! -------------------------");
+                    Console.WriteLine($"Type: {warning.violation_type}");
+                    Console.WriteLine($"Severity: {warning.violation_severity}");
+                    Console.WriteLine($"Packet ID: {warning.violating_packet_id}");
+                    Console.WriteLine($"Context: {warning.violaton_context}");
+                    break;
                 default:
                     Console.WriteLine($"Unhandled Game Packet ({packetID} 0x{data[0]:X2})");
                     break;
             }
         }
 
-        private void HandleLogin(byte[] data)
+        private async void HandleLogin(byte[] data)
         {
-            Login loginPacket = new Login(data);
-            loginPacket.Deserialize();
+            //Login loginPacket = new Login(data);
+            //loginPacket.Deserialize();
 
             PlayStatus playStatus = new PlayStatus(0);
-            ResourcePacksInfo resourcePacksInfo = new ResourcePacksInfo();
+            ResourcePacksInfo resourcePacksInfo = new ResourcePacksInfo();;
             lock (Sendq)
             {
                 Sendq.Insert(Reliability.ReliableOrdered, playStatus);
-                Sendq.Insert(Reliability.ReliableOrdered, resourcePacksInfo);
             }
 
+            await Task.Delay(100);
+            Sendq.Insert(Reliability.Reliable, resourcePacksInfo);
+            
             // IF ENCRYPTION IS ENABLED
             //StartEncryption(loginPacket.chain_data);
         }

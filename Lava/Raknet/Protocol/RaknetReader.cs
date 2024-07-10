@@ -163,6 +163,18 @@ namespace Lava.Raknet
             byte[] strData = reader.ReadBytes(size);
             return Encoding.UTF8.GetString(strData);
         }
+        public string ReadVString()
+        {
+            int size = ReadVarInt();
+
+            if (bufStream.Length - bufStream.Position < size)
+            {
+                throw new RaknetError("ReadPacketBufferError");
+            }
+
+            byte[] strData = reader.ReadBytes(size);
+            return Encoding.UTF8.GetString(strData);
+        }
 
         public bool ReadMagic()
         {

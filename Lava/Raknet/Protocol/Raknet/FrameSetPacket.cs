@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace Lava.Raknet
 {
@@ -56,7 +57,7 @@ namespace Lava.Raknet
             this.is_game_packet = is_game_packet;
             this.is_compression_ready = is_compression_ready;
 
-            if (is_game_packet) { length_in_bytes += 2; }
+            //if (is_game_packet) { length_in_bytes += 2; }
         }
 
         public static FrameSetPacket Deserialize(byte[] buf)
@@ -113,6 +114,14 @@ namespace Lava.Raknet
             writer.WriteU8(id);
             writer.WriteU24(sequence_number, Endian.Little);
             writer.WriteU8(flags);
+
+            if (is_game_packet)
+            {
+                length_in_bytes++;                                          // 0xfe
+                if (is_compression_ready) length_in_bytes++;                // 0xff
+                length_in_bytes += calculate_varint_length(data.Length);    // packet size varInt
+            }
+
             writer.WriteU16((ushort)(length_in_bytes * 8), Endian.Big);
 
             if (IsReliable())
@@ -140,27 +149,40 @@ namespace Lava.Raknet
             if (is_game_packet)
             {
                 writer.WriteU8(0xfe);
-                //if (data[0] == 0x05)
-                //{
-                //    Console.WriteLine($"lmao! {data.Length}b");
-                //    //return data;
-                //    //return;
-                //}
-
-                //else
-                //{
-                //    if (is_compression_ready) writer.WriteU8((byte)0x00);
-                //    //writer.WriteU8((byte)data.Length);
-                //    writer.WriteVarInt(data.Length);
-                //}
-                if (is_compression_ready) writer.WriteU8((byte)0xFF);
-                //writer.WriteU8((byte)data.Length);
+                if (is_compression_ready) writer.WriteU8((byte)0xff);
                 writer.WriteVarInt(data.Length);
             }
             writer.Write(data);
 
             return writer.GetRawPayload();
         }
+
+        private ushort calculate_varint_length(int value)
+        {
+            ushort length_in_bytes = 0;
+            while (true)
+            {
+                length_in_bytes++;
+                if ((value & ~0x7F) == 0) break;
+                value >>= 7;
+            }
+
+            return length_in_bytes;
+        }
+        //public int calculate_length_with_headers(int value)
+        //{
+        //    int data_varint_size = 0;
+        //    while (true)
+        //    {
+        //        data_varint_size++;
+        //        if ((value & ~0x7F) == 0) break;
+        //        value >>= 7;
+        //    }
+
+        //    int data_size = (int)value;
+        //    int packet_header_size = this.is_compression_ready ? 2 : 1;
+        //    return data_size + packet_header_size + data_varint_size;
+        //}
 
         public bool IsFragment()
         {
