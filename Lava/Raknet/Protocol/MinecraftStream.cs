@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Lava.Raknet.Protocol
 {
@@ -223,7 +225,7 @@ namespace Lava.Raknet.Protocol
             } while (value != 0);
         }
 
-        public long ReadVarLong()
+        public long ReadUnsignedVarLong()
         {
             int numRead = 0;
             long result = 0;
@@ -248,7 +250,7 @@ namespace Lava.Raknet.Protocol
             return result;
         }
 
-        public void WriteVarLong(long value)
+        public void WriteUnsignedVarLong(long value)
         {
             do
             {
@@ -390,18 +392,37 @@ namespace Lava.Raknet.Protocol
 
         public long ReadSignedVarLong()
         {
-            long raw = ReadVarLong();
+            long raw = ReadUnsignedVarLong();
             long temp = (((raw << 63) >> 63) ^ raw) >> 1;
             return temp ^ (raw & (1L << 63));
         }
 
         public void WriteSignedVarLong(long value)
         {
-            WriteVarLong((value << 1) ^ (value >> 63));
+            WriteUnsignedVarLong((value << 1) ^ (value >> 63));
         }
         public byte[] GetBytes()
         {
             return writeBuff.ToArray();
+        }
+        public int readActorUniqueId()
+        {
+            return (int) ReadSignedVarLong();
+        }
+
+        public void writeActorUniqueId(int eid)
+        {
+            WriteSignedVarLong(eid);
+        }
+
+        public int readActorRuntimeId()
+        {
+            return (int) ReadUnsignedVarLong(); // $this->getUnsignedVarLong();
+        }
+
+        public void writeActorRuntimeId(int eid)
+        {
+            WriteUnsignedVarLong(eid); //$this->putUnsignedVarLong($eid);
         }
     }
 

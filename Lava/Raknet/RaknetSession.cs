@@ -343,7 +343,7 @@ namespace Lava.Raknet
                 return;
             }
 
-            StartGame startGame = new StartGame();
+            StartGamePacket startGame = new StartGamePacket();
             lock (Sendq) Sendq.Insert(Reliability.ReliableOrdered, startGame);
         }
         public void HandleMcpeServerToClientHandshake(string token)

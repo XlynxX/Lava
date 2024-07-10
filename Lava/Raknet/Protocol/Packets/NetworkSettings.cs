@@ -28,7 +28,7 @@ namespace Lava.Raknet.Packets
         {
             RaknetWriter stream = new RaknetWriter();
             stream.WriteU8(GamePacketID.NETWORK_SETTINGS_PACKET);
-            stream.WriteU8(0x01);
+            stream.WriteU8((byte)0x01);
             stream.WriteI16(threshold, Endian.Big);
             stream.WriteI16(method, Endian.Big);
             stream.WriteBool(throttle_enabled);

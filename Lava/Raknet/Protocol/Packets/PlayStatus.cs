@@ -19,14 +19,14 @@ namespace Lava.Raknet.Packets
         public override byte[] Serialize()
         {
             RaknetWriter stream = new RaknetWriter();
-            //stream.WriteU8(GamePacketID.PLAY_STATUS_PACKET);
-            //stream.WriteI32(status, Endian.Big);
+            stream.WriteU8(GamePacketID.PLAY_STATUS_PACKET);
+            stream.WriteI32(status, Endian.Big);
             //stream.Write([0x45, 0x10, 0x1c]);
 
             //      0xFF 0x05 0x02 0x00 0x00 0x00 0x00
-            return [0x02, 0x00, 0x00, 0x00, 0x00];
+            //return [0x02, 0x00, 0x00, 0x00, 0x05];
 
-            //return stream.GetRawPayload();
+            return stream.GetRawPayload();
         }
 
         public override void Deserialize()

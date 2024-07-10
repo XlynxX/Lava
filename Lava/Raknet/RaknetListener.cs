@@ -128,7 +128,7 @@ namespace Lava.Raknet
                 time = 0,
                 guid = guid,
                 magic = true,
-                motd = "MCPE;§6§eLava Server;685;1.21.1;900;999;13253860892328930865;§l§eLava - A cutting-edge Minecraft Bedrock core designed for unparalleled performance, rock-solid stability, and advanced features.;Survival;1;19132;19133;"
+                motd = "MCPE;§6§eLava Server;686;1.21.1;900;999;13253860892328930865;§l§eLava - A cutting-edge Minecraft Bedrock core designed for unparalleled performance, rock-solid stability, and advanced features.;Survival;1;19132;19133;"
             };
             byte[] unconnectedPongBuff = Packet.WritePacketPong(unconnectedPongPacket);
             this.Send(peer_addr, unconnectedPongBuff);
