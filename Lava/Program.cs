@@ -19,15 +19,15 @@ namespace Lava
             StartGamePacket start = new StartGamePacket(bytes);
             start.Deserialize();
 
-            //Console.WriteLine(start.playerPosition.X);
-            //Console.WriteLine(start.playerPosition.Y);
-            //Console.WriteLine(start.playerPosition.Z);
+            Console.WriteLine(start.playerPosition.X);
+            Console.WriteLine(start.playerPosition.Y);
+            Console.WriteLine(start.playerPosition.Z);
 
-            //Console.WriteLine(start.pitch); Console.WriteLine(start.yaw);
-            //Console.WriteLine(start.levelSettings.RainLevel);
-            //Console.WriteLine(start.levelSettings.LightningLevel);
-            //Console.WriteLine(start.levelSettings.VanillaVersion);
-            //Console.WriteLine(start.levelSettings.HasEduFeaturesEnabled);
+            Console.WriteLine(start.pitch); Console.WriteLine(start.yaw);
+            Console.WriteLine(start.levelSettings.rainLevel);
+            Console.WriteLine(start.levelSettings.lightningLevel);
+            Console.WriteLine(start.levelSettings.difficulty);
+            Console.WriteLine(start.levelSettings.generator);
             Console.WriteLine(start.levelId);
 
             while (true) { }

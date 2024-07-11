@@ -9,5 +9,6 @@ namespace Lava.Raknet.Protocol.Types
         public const int BOOL = 1;
         public const int INT = 2;
         public const int FLOAT = 3;
+        private GameRuleType();
     }
 }

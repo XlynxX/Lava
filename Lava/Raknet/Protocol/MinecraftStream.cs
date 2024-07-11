@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Lava.Raknet.Protocol.Types;
+using System.Security.Cryptography;
 using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -326,17 +327,32 @@ namespace Lava.Raknet.Protocol
             writeBuff.AddRange(value);
         }
 
-        public (int, int, int) ReadBlockCoordinates()
+        //public (int, int, int) ReadBlockPosition()
+        //{
+        //    int x = ReadSignedVarInt();
+        //    int y = ReadVarInt();
+        //    int z = ReadSignedVarInt();
+        //    return (x, y, z);
+        //}
+
+        public BlockPosition ReadBlockPosition()
         {
             int x = ReadSignedVarInt();
             int y = ReadVarInt();
             int z = ReadSignedVarInt();
-            return (x, y, z);
+            return new BlockPosition(x, y, z);
         }
 
-        public void WriteBlockCoordinates(int x, int y, int z)
+        public void WriteBlockPosition(BlockPosition blockPos)
         {
-            WriteVarInt(x);
+            WriteSignedVarInt(blockPos.getX());
+            WriteVarInt(blockPos.getY());
+            WriteSignedVarInt(blockPos.getZ());
+        }
+
+        public void WriteBlockPosition(int x, int y, int z)
+        {
+            WriteSignedVarInt(x);
             WriteVarInt(y);
             WriteSignedVarInt(z);
         }
@@ -430,6 +446,20 @@ namespace Lava.Raknet.Protocol
     {
         public float X, Y, Z;
         public Vector3(float x, float y, float z) { X = x; Y = y; Z = z; }
+        public int getFloorX()
+        {
+            return (int)Math.Floor(X);
+        }
+
+        public int getFloorY()
+        {
+            return (int)Math.Floor(Y);
+        }
+
+        public int getFloorZ()
+        {
+            return (int)Math.Floor(Z);
+        }
     }
 
     public struct Vector2
